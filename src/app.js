@@ -21,7 +21,7 @@ function displayMessage(message) {
         <i class="fas fa-user"></i>
         <div>
           <span class="username">${message.username}
-            <time>20:12 PM</time>
+            <time>${message.date.toDate().toLocaleString()}</time>
           </span>
           <br>
           <span class="message-text">
@@ -35,6 +35,7 @@ function displayMessage(message) {
       </div>
   `;
   document.querySelector('#messages').insertAdjacentHTML('beforeend', messageDOM);
+
   scrolIntoView(document.querySelector('#messages'), {
     scrollMode: 'if-needed',
     block: 'end'
@@ -46,6 +47,7 @@ function createMessage() {
   const message = document.querySelector('#message').value;
   const username = document.querySelector('#nickname').value;
   const date = firebase.firestore.Timestamp.fromDate(new Date());
+
   // ha a változó neve ugyanaz mint a key amit létre akarunk hozni
   // az objectben akkor nem kell kétszer kiírni...
   return { message, username, date };
