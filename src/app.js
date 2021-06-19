@@ -40,11 +40,17 @@ function displayMessage(ID, message) {
     scrollMode: 'if-needed',
     block: 'end'
   });
+
+
+
   document.querySelector(`[data-id="${ID}"] .fa-trash-alt`).addEventListener('click', () => {
     removeMessage(ID);
     deleteMessage(ID)
   });
+  document.querySelector(`[data-id="${ID}"] .fa-pen`).addEventListener('click', () => {
+    displayEditMessage(ID, message);
 
+  });
 }
 
 function createMessage() {
@@ -108,9 +114,46 @@ db.collection('messages').orderBy('date', 'asc')
 
 function removeMessage(ID) {
   document.querySelector(`[data-id="${ID}"]`).remove()
+
 }
 
 function deleteMessage(ID) {
   db.collection('messages').doc(ID).delete()
-}
 
+}
+// bejegyzés szerkesztése
+function displayEditMessage(ID, message) {
+  console.log(ID, message)
+  const markup = /*html*/`
+  <div class="popup-container" id="popup">
+    <div class="edit-message" id="edit-message" data-id="${ID}">
+      <div id="close-popup" class="button">
+        Close <i class="fa fa-window-close" aria-hidden="true"></i>
+      </div>
+      <textarea id="edit" name="" cols="30" rows="10">${document.querySelector(`.message[data-id="${ID}"] .message-text`).textContent.trim()
+    }</textarea>
+      <div id="save-message" class="button">
+        Save message<i class="fas fa-save"></i>
+      </div>
+    </div>
+  </div>
+`;
+  document.querySelector('#app').insertAdjacentHTML('beforeend', markup);
+  // popup ablak bezárása
+  document.querySelector(`.fa-window-close`).addEventListener('click', () => {
+    document.querySelector(`.popup-container`).remove();
+  });
+  // új üzenet mentése
+  document.querySelector(`.fa-save`).addEventListener('click', () => {
+    const newMessage = document.querySelector(`#edit-message > textarea`).value
+    document.querySelector(`.message[data-id="${ID}"] .message-text`).textContent = newMessage;
+    document.querySelector(`.popup-container`).remove();
+    modifyMessage(ID, newMessage);
+  });
+}
+// új üzenet mentése a firebase-ben
+async function modifyMessage(id, newMessage) {
+  await db.collection('messages').doc(id).update({
+    message: newMessage
+  })
+}
